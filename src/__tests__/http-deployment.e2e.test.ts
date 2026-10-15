@@ -242,3 +242,93 @@ describe('MCP_STATELESS', () => {
     }
   });
 });
+
+describe('CORS for allowlisted origins', () => {
+  const ORIGIN = 'https://app.example.org';
+
+  it('answers a preflight from an allowlisted origin with 204 and the CORS headers', async () => {
+    const { app } = await loadApp({ ALLOWED_ORIGINS: ORIGIN });
+
+    const res = await request(app)
+      .options('/mcp')
+      .set('Origin', ORIGIN)
+      .set('Access-Control-Request-Method', 'POST')
+      .set('Access-Control-Request-Headers', 'content-type, authorization, mcp-session-id');
+
+    expect(res.status).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe(ORIGIN);
+    expect(res.headers['access-control-allow-methods']).toBe('GET, POST, DELETE, OPTIONS');
+    for (const header of ['authorization', 'mcp-session-id', 'content-type', 'accept']) {
+      expect(res.headers['access-control-allow-headers']?.toLowerCase()).toContain(header);
+    }
+    expect(res.headers.vary).toContain('Origin');
+  });
+
+  it('lets a preflight through without a token and without spending rate-limit budget', async () => {
+    const { app } = await loadApp({
+      ALLOWED_ORIGINS: ORIGIN,
+      MCP_AUTH_TOKEN: 's3cret-token',
+      RATE_LIMIT_PER_MINUTE: '1',
+    });
+
+    for (let i = 0; i < 4; i += 1) {
+      expect((await request(app).options('/mcp').set('Origin', ORIGIN)).status).toBe(204);
+    }
+  });
+
+  it('rejects a preflight from an origin that is not allowlisted, without CORS headers', async () => {
+    const { app } = await loadApp({ ALLOWED_ORIGINS: ORIGIN });
+
+    const res = await request(app).options('/mcp').set('Origin', 'https://evil.example');
+
+    expect(res.status).toBe(403);
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
+  it('marks the real response, exposes the session header and echoes the origin, never *', async () => {
+    const { app, sessions } = await loadApp({ ALLOWED_ORIGINS: ORIGIN });
+
+    const res = await request(app)
+      .post('/mcp')
+      .set(MCP_HEADERS)
+      .set('Origin', ORIGIN)
+      .send(INITIALIZE);
+    sessions.clear();
+
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBe(ORIGIN);
+    expect(res.headers['access-control-expose-headers']).toContain('Mcp-Session-Id');
+  });
+
+  it('keeps the CORS headers on a 401, so a browser client sees the status', async () => {
+    const { app } = await loadApp({ ALLOWED_ORIGINS: ORIGIN, MCP_AUTH_TOKEN: 's3cret-token' });
+
+    const res = await request(app)
+      .post('/mcp')
+      .set(MCP_HEADERS)
+      .set('Origin', ORIGIN)
+      .send(INITIALIZE);
+
+    expect(res.status).toBe(401);
+    expect(res.headers['access-control-allow-origin']).toBe(ORIGIN);
+  });
+
+  it('adds nothing for requests without an Origin header', async () => {
+    const { app, sessions } = await loadApp({ ALLOWED_ORIGINS: ORIGIN });
+
+    const res = await request(app).post('/mcp').set(MCP_HEADERS).send(INITIALIZE);
+    sessions.clear();
+
+    expect(res.status).toBe(200);
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
+
+  it('stays closed to browsers while ALLOWED_ORIGINS is unset', async () => {
+    const { app } = await loadApp({});
+
+    const res = await request(app).options('/mcp').set('Origin', ORIGIN);
+
+    expect(res.status).toBe(403);
+    expect(res.headers['access-control-allow-origin']).toBeUndefined();
+  });
+});

@@ -80,6 +80,50 @@ export function validateOrigin(req: Request, res: Response, next: NextFunction):
 // client IP nor create an entry in its store.
 app.use('/mcp', validateOrigin);
 
+/**
+ * CORS for the origins in ALLOWED_ORIGINS — what makes that allowlist usable by
+ * a client that runs in a browser tab. Without it a listed origin passes the
+ * check above and is then blocked by the browser anyway, because the response
+ * carries no CORS headers. The allowlist is the same one: an origin the server
+ * would reject answers 403 before it gets here, and with ALLOWED_ORIGINS unset
+ * nothing in this block ever fires.
+ *
+ * Sits ahead of the auth check and the rate limiter on purpose. A preflight
+ * carries no Authorization header by design, so it must not be answered with
+ * 401, and it should not spend the client's request budget; the 401 of a real
+ * request still needs the headers, or the browser reports a CORS failure
+ * instead of the status. The allowed origin is echoed, never `*`: the
+ * `Mcp-Session-Id` header is exposed so a browser client can read its session.
+ */
+export function applyCors(req: Request, res: Response, next: NextFunction): void {
+  const origin = req.headers.origin;
+  if (origin === undefined) {
+    next();
+    return;
+  }
+
+  res.vary('Origin');
+  res.set({
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Expose-Headers': 'Mcp-Session-Id, WWW-Authenticate',
+  });
+
+  if (req.method === 'OPTIONS') {
+    res.set({
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'Content-Type, Accept, Authorization, Mcp-Session-Id, Mcp-Protocol-Version, Last-Event-ID',
+      'Access-Control-Max-Age': '600',
+    });
+    res.status(204).end();
+    return;
+  }
+
+  next();
+}
+
+app.use('/mcp', applyCors);
+
 // Optional shared secret for /mcp. Unset or empty means the endpoint stays open,
 // which is the long-standing default (and what claude.ai custom connectors need:
 // they cannot send a static header). Set it when the endpoint is reachable beyond
