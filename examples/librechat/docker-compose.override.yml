@@ -1,11 +1,11 @@
-# Drop next to LibreChat's docker-compose.yml (Docker Compose merges the override
-# automatically).
+# Neben die docker-compose.yml der LibreChat legen (Docker Compose bindet die
+# Override-Datei automatisch ein).
 #
-# Two optional variables, set in LibreChat's own .env:
-#   RIS_MCP_IMAGE_TAG   image tag to run (default: stable); pin a release tag
-#                       such as fork-1.9.0-1 for reproducible deployments
-#   RIS_MCP_AUTH_TOKEN  bearer token for /mcp; leave unset to run without one
-#                       (the service is only reachable inside the compose network)
+# Zwei optionale Variablen in der .env der LibreChat:
+#   RIS_MCP_IMAGE_TAG   Image-Tag (Standard: stable); für nachvollziehbare Stände
+#                       einen festen Tag setzen, z. B. fork-1.9.0-1
+#   RIS_MCP_AUTH_TOKEN  Bearer-Token für /mcp; leer = ohne Token (der Dienst ist
+#                       nur im Compose-Netz erreichbar)
 services:
   api:
     volumes:
@@ -15,7 +15,7 @@ services:
 
   ris-mcp:
     image: ghcr.io/daralph/ris-mcp-ts-fork:${RIS_MCP_IMAGE_TAG:-stable}
-    # Alternative: build from a local checkout instead of pulling the image.
+    # Alternative: aus einem lokalen Checkout bauen, statt das Image zu ziehen.
     # build: ../ris-mcp-ts-fork
     restart: unless-stopped
     init: true
@@ -24,12 +24,13 @@ services:
     security_opt: ['no-new-privileges:true']
     mem_limit: 512m
     pids_limit: 128
-    # No "ports:" — LibreChat reaches it as http://ris-mcp:3000/mcp inside the
-    # compose network, and nothing else can.
+    # Kein "ports:": LibreChat erreicht den Dienst im Compose-Netz unter
+    # http://ris-mcp:3000/mcp, sonst niemand.
     environment:
-      # LibreChat has no interactive widget and serves many users from one IP.
+      # LibreChat stellt keine interaktiven Ansichten dar, und alle Nutzer:innen
+      # kommen von einer IP.
       MCP_STATELESS: 'true'
       RATE_LIMIT_PER_MINUTE: '600'
-      # Optional. Also add RIS_MCP_AUTH_TOKEN to LibreChat's .env so that
-      # librechat.yaml can reference it (see below).
+      # Optional. RIS_MCP_AUTH_TOKEN auch in die .env der LibreChat eintragen,
+      # damit die librechat.yaml darauf verweisen kann.
       MCP_AUTH_TOKEN: ${RIS_MCP_AUTH_TOKEN:-}
