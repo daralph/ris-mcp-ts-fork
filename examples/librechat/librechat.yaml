@@ -5,9 +5,13 @@ mcpServers:
     type: streamable-http
     url: http://ris-mcp:3000/mcp
     timeout: 60000
+    initTimeout: 15000
+    # Offers the server in the chat's MCP menu for every user.
+    chatMenu: true
+    requiresOAuth: false
     # Hands the server's usage instructions (which tool for what, how to cite) to
     # the model — worth the few hundred tokens.
     serverInstructions: true
-    # Only if you set RIS_MCP_AUTH_TOKEN; otherwise delete these three lines.
+    # Only if you set RIS_MCP_AUTH_TOKEN; otherwise delete these two lines.
     headers:
       Authorization: "Bearer ${RIS_MCP_AUTH_TOKEN}"

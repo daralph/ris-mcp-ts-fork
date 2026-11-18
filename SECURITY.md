@@ -13,7 +13,9 @@ The RIS MCP Server project takes security seriously. We appreciate your efforts 
 
 **Please do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, send an email to **[security@philrox.at](mailto:security@philrox.at)** with the following information:
+This repository is a fork. For anything specific to it (HTTP self-hosting, the container image, the fork workflows), use GitHub's private reporting: **Security → Report a vulnerability** in this repository. There is no e-mail contact. Issues in the code shared with the upstream project [Honeyfield-Org/ris-mcp-ts](https://github.com/Honeyfield-Org/ris-mcp-ts) should also be reported there, following its security policy.
+
+Please include:
 
 - Description of the vulnerability
 - Steps to reproduce the issue
