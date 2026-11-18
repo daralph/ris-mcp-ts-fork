@@ -1,8 +1,8 @@
-# Merge this block into your existing librechat.yaml (it is not a complete file),
-# then restart the `api` container.
+# Diesen Block in die bestehende librechat.yaml einfügen (keine vollständige Datei),
+# danach den Container `api` neu starten.
 
-# Required: LibreChat's SSRF protection blocks internal service names otherwise
-# ("Domain ... is not allowed") and the server shows up with 0 tools.
+# Pflicht: Sonst blockiert der SSRF-Schutz der LibreChat interne Dienstnamen
+# ("Domain ... is not allowed"), und der Server erscheint mit 0 Tools.
 mcpSettings:
   allowedAddresses:
     - 'ris-mcp:3000'
@@ -13,12 +13,12 @@ mcpServers:
     url: http://ris-mcp:3000/mcp
     timeout: 60000
     initTimeout: 15000
-    # Offers the server in the chat's MCP menu for every user.
+    # Bietet den Server allen Nutzer:innen im MCP-Menü des Chats an.
     chatMenu: true
     requiresOAuth: false
-    # Hands the server's usage instructions (which tool for what, how to cite) to
-    # the model — worth the few hundred tokens.
+    # Gibt dem Modell die Gebrauchsanweisung des Servers mit (welches Tool wofür,
+    # wie zitieren). Die paar hundert Tokens lohnen sich.
     serverInstructions: true
-    # Only if you set RIS_MCP_AUTH_TOKEN; otherwise delete these two lines.
+    # Nur mit gesetztem RIS_MCP_AUTH_TOKEN; sonst diese zwei Zeilen löschen.
     headers:
       Authorization: "Bearer ${RIS_MCP_AUTH_TOKEN}"
