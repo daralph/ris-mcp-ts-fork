@@ -1,5 +1,12 @@
 # Merge this block into your existing librechat.yaml (it is not a complete file),
 # then restart the `api` container.
+
+# Required: LibreChat's SSRF protection blocks internal service names otherwise
+# ("Domain ... is not allowed") and the server shows up with 0 tools.
+mcpSettings:
+  allowedAddresses:
+    - 'ris-mcp:3000'
+
 mcpServers:
   ris:
     type: streamable-http

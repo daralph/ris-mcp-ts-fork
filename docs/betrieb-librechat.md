@@ -65,9 +65,11 @@ Aus `examples/librechat/docker-compose.override.yml`:
   (`MCP_STATELESS: 'true'`) und übersteht Neustarts ohne Sitzungsverlust.
 - Alle Nutzer:innen kommen aus Sicht des Servers von einer IP. Das Beispiel setzt darum
   `RATE_LIMIT_PER_MINUTE: '600'` statt des Standards 60.
-- Blockiert der SSRF-Schutz der LibreChat den internen Dienstnamen, `ris-mcp:3000` in
-  `librechat.yaml` unter `mcpSettings.allowedAddresses` eintragen. Dieser Punkt ist noch
-  nicht in einer laufenden LibreChat bestätigt.
+- **Pflicht:** `ris-mcp:3000` in `librechat.yaml` unter `mcpSettings.allowedAddresses`
+  eintragen. Ohne den Eintrag blockiert der SSRF-Schutz der LibreChat den internen
+  Dienstnamen (`Domain "http://ris-mcp:3000" is not allowed`) und der Server erscheint mit
+  0 Tools. Geprüft mit LibreChat v0.8.8-rc4; das Beispiel in `examples/librechat/` enthält
+  den Eintrag. Wer stattdessen `mcpSettings.allowedDomains` nutzt, trägt den Namen dort ein.
 
 ## 6. Betrieb
 
