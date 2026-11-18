@@ -166,6 +166,8 @@ docker compose exec ris-mcp wget -qO- http://localhost:3000/health
 | Antwort endet mit „Antwort gekürzt“ | Dokument länger als 25.000 Zeichen | Normal. Die Quelle ist verlinkt, oder die Frage genauer stellen |
 | Fehler oder Zeitüberschreitung beim Abruf | RIS-API nicht erreichbar (Zeitlimit 30 Sekunden) | Später erneut versuchen, ausgehende Verbindung zu `data.bka.gv.at` prüfen |
 
+Ressourcen, Netz, Update, Rückbau und Datenhaltung: [docs/betrieb-librechat.md](docs/betrieb-librechat.md).
+
 **Optional: Claude für deine Organisation**
 
 Ihr nutzt neben LibreChat auch Claude? Dann braucht der Server einen öffentlich erreichbaren HTTPS-Endpunkt und bleibt ohne Token. Die Schritte stehen unter [Claude (claude.ai, Claude Desktop, Claude Code)](#claude-claudeai-claude-desktop-claude-code). Für einzelne Rechner gibt es außerdem das [Ein-Klick-Paket für Claude Desktop](#claude-desktop-ein-klick-paket).
