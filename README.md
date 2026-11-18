@@ -413,7 +413,7 @@ Restart the `api` container; the server then shows up in the chat's MCP menu and
   claude mcp add --transport http ris https://<your-public-host>/mcp --header "Authorization: Bearer <token>"
   ```
 
-### Hosted platforms with a custom-MCP field (e.g. Grünerator)
+### Hosted platforms with a custom-MCP field
 
 Platforms with a section like *„Eigenen MCP-Server hinzufügen“* take a name and a server URL, and nothing else:
 
